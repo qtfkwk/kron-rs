@@ -1,8 +1,11 @@
 [package]
 name = "kron"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 description = "Date/time library"
 license = "MIT"
 
 [dependencies]
+anyhow = "1.0.71"
+lazy_static = "1.4.0"
+time = { version = "0.3.21", features = ["formatting"] }
