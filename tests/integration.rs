@@ -10,6 +10,13 @@ fn epoch_display() {
 }
 
 #[test]
+fn epoch_timestamp() {
+    let kron = Kron::epoch();
+    assert_eq!(kron.dt.unix_timestamp(), 0);
+    assert_eq!(kron.dt.unix_timestamp_nanos(), 0);
+}
+
+#[test]
 fn epoch_format_iso8601() {
     assert_eq!(Kron::epoch().format(&ISO8601).unwrap(), EPOCH_ISO8601);
 }

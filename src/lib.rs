@@ -40,7 +40,7 @@ impl KronFormat {
 //--------------------------------------------------------------------------------------------------
 
 pub struct Kron {
-    dt: OffsetDateTime,
+    pub dt: OffsetDateTime,
 }
 
 impl Kron {

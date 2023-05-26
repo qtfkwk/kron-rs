@@ -1,4 +1,4 @@
-```
+```rust
 use kron::*;
 
 // Get current timestamp
@@ -29,5 +29,17 @@ assert_eq!(
     ts.format_str("[hour]:[minute]:[second] [month]/[day]/[year]").unwrap(),
     "10:17:42 11/09/1989",
 );
+
+// Get the UNIX timestamp in seconds/nanoseconds by accessing the internal
+// `time::OffsetDateTime`
+assert_eq!(ts.dt.unix_timestamp(), 626609862);
+assert_eq!(ts.dt.unix_timestamp_nanos(), 626609862000000000);
 ```
+
+# Changelog
+
+Please find the [`CHANGELOG.md`] in the [repository].
+
+[`CHANGELOG.md`]: https://github.com/qtfkwk/kron-rs/blob/main/CHANGELOG.md
+[repository]: https://github.com/qtfkwk/kron-rs/
 
