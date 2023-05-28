@@ -1,5 +1,7 @@
+# Example
+
 ```rust
-use kron::*;
+use kron_lib::*;
 
 // Get current timestamp
 let now = Kron::now();
@@ -40,6 +42,6 @@ assert_eq!(ts.dt.unix_timestamp_nanos(), 626609862000000000);
 
 Please find the [`CHANGELOG.md`] in the [repository].
 
-[`CHANGELOG.md`]: https://github.com/qtfkwk/kron-rs/blob/main/CHANGELOG.md
+[`CHANGELOG.md`]: https://github.com/qtfkwk/kron-rs/blob/main/lib/CHANGELOG.md
 [repository]: https://github.com/qtfkwk/kron-rs/
 
