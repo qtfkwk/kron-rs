@@ -1,49 +1,95 @@
 # About
 
-Date/time library
+Date/time CLI utility
 
-*See also the [`kron`] crate.*
+*See also the [`kron-lib`] crate.*
 
-[`kron`]: https://crates.io/crates/kron
+[`kron-lib`]: https://crates.io/crates/kron-lib
 
-# Example
+# Usage
 
-```rust
-use kron_lib::*;
+```
+$ kron -h
+Date/time CLI utility
 
-// Get current timestamp
-let now = Kron::now();
+Usage: kron [OPTIONS] [ARG]...
 
-// Print it ~ "2023-05-26T13:07:42Z\n"
-println!("{now}");
+Arguments:
+  [ARG]...  Argument ["%s[%.f]" timestamp, default: now]
 
-// Get a specific timestamp (0 = UNIX epoch)
-let ts = Kron::timestamp(626609862).unwrap();
+Options:
+  -f, --format <FORMAT>  Format (COMPACT, ISO8601, ISO8601NS) [default: ISO8601]
+  -r, --readme           Print readme
+  -h, --help             Print help
+  -V, --version          Print version
+```
 
-// Default format (ISO8601)
-assert_eq!(format!("{ts}"), "1989-11-09T10:17:42Z");
-assert_eq!(ts.to_string(), "1989-11-09T10:17:42Z");
+```
+$ kron -V
+kron 2.1.0
+```
 
-// Format constant
-assert_eq!(ts.format(&COMPACT).unwrap(), "19891109-101742Z");
-assert_eq!(ts.format(&ISO8601).unwrap(), "1989-11-09T10:17:42Z");
+# Examples
 
-// Create a custom format and use it
-let custom_fmt = KronFormat::new(
-    "[weekday repr:short] [month]/[day]/[year] [hour]:[minute]",
-).unwrap();
-assert_eq!(ts.format(&custom_fmt).unwrap(), "Thu 11/09/1989 10:17");
+## Now
 
-// Use a custom format string directly
-assert_eq!(
-    ts.format_str("[hour]:[minute]:[second] [month]/[day]/[year]").unwrap(),
-    "10:17:42 11/09/1989",
-);
+```
+$ kron
+2023-05-29T14:43:19Z
+```
 
-// Get the UNIX timestamp in seconds/nanoseconds by accessing the internal
-// `time::OffsetDateTime`
-assert_eq!(ts.dt.unix_timestamp(), 626609862);
-assert_eq!(ts.dt.unix_timestamp_nanos(), 626609862000000000);
+## Alternate formats
+
+```
+$ kron -f COMPACT
+20230529-144319Z
+```
+
+```
+$ kron -f ISO8601NS
+2023-05-29T14:43:19.240644157Z
+```
+
+## Custom formats
+
+```
+$ kron -f '[hour]:[minute]'
+14:43
+```
+
+```
+$ kron -f '[weekday repr:long], [month repr:long] [day], [year]'
+Monday, May 29, 2023
+```
+
+## Single timestamp
+
+```
+$ kron 0
+1970-01-01T00:00:00Z
+```
+
+## Multiple timestamps
+
+```
+$ kron 0 3600 7200
+1970-01-01T00:00:00Z
+1970-01-01T01:00:00Z
+1970-01-01T02:00:00Z
+```
+
+## Subsecond timestamp
+
+```
+$ kron -f ISO8601NS 626609862.1234
+1989-11-09T10:17:42.123400000Z
+```
+
+## Invalid timestamp
+
+```
+$ kron not-a-timestamp
+Error: Invalid timestamp: "not-a-timestamp"
 ```
 
 # Format syntax
@@ -68,11 +114,4 @@ Component | Description
 
 See <https://time-rs.github.io/book/api/format-description.html> for additional
 details.
-
-# Changelog
-
-Please find the [`CHANGELOG.md`] in the [repository].
-
-[`CHANGELOG.md`]: https://github.com/qtfkwk/kron-rs/blob/main/CHANGELOG.md
-[repository]: https://github.com/qtfkwk/kron-rs/
 

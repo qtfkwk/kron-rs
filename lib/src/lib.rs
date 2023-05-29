@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------------------------------------------
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use lazy_static::lazy_static;
 use time::OffsetDateTime;
 
@@ -10,12 +10,14 @@ use time::OffsetDateTime;
 
 pub const FMT_COMPACT: &str = "[year][month][day]-[hour][minute][second]Z";
 pub const FMT_ISO8601: &str = "[year]-[month]-[day]T[hour]:[minute]:[second]Z";
+pub const FMT_ISO8601NS: &str = "[year]-[month]-[day]T[hour]:[minute]:[second].[subsecond digits:9]Z";
 
 //--------------------------------------------------------------------------------------------------
 
 lazy_static! {
-    pub static ref COMPACT: KronFormat = KronFormat::new(FMT_COMPACT).unwrap();
-    pub static ref ISO8601: KronFormat = KronFormat::new(FMT_ISO8601).unwrap();
+    pub static ref COMPACT: KronFormat<'static> = KronFormat::new(FMT_COMPACT).unwrap();
+    pub static ref ISO8601: KronFormat<'static> = KronFormat::new(FMT_ISO8601).unwrap();
+    pub static ref ISO8601NS: KronFormat<'static> = KronFormat::new(FMT_ISO8601NS).unwrap();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -25,15 +27,26 @@ mod tests;
 
 //--------------------------------------------------------------------------------------------------
 
-pub struct KronFormat {
-    fmt: Vec<time::format_description::FormatItem<'static>>,
+#[derive(Clone)]
+pub struct KronFormat<'a> {
+    fmt: Vec<time::format_description::FormatItem<'a>>,
 }
 
-impl KronFormat {
-    pub fn new(s: &'static str) -> Result<KronFormat> {
+impl KronFormat<'_> {
+    pub fn new(s: &str) -> Result<KronFormat> {
         Ok(KronFormat {
             fmt: time::format_description::parse(s)?,
         })
+    }
+
+    pub fn from(s: &str) -> Result<KronFormat> {
+        match s {
+            "COMPACT" => Ok(COMPACT.clone()),
+            "ISO8601" => Ok(ISO8601.clone()),
+            "ISO8601NS" => Ok(ISO8601NS.clone()),
+            _ => KronFormat::new(s),
+            //_ => Err(anyhow!("Invalid format: {s:?}")),
+        }
     }
 }
 
@@ -47,6 +60,23 @@ impl Kron {
     pub fn now() -> Kron {
         Kron {
             dt: OffsetDateTime::now_utc(),
+        }
+    }
+
+    pub fn from(s: &str) -> Result<Kron> {
+        if s.contains('.') && s.parse::<f64>().is_ok() {
+            let mut p = s.split('.');
+            let mut ts = Kron::timestamp(p.next().unwrap().parse::<i64>()?)?;
+            let mut nanos = p.next().unwrap().to_string();
+            while nanos.len() < 9 {
+                nanos.push('0');
+            }
+            ts.dt = ts.dt.replace_nanosecond(nanos.parse::<u32>()?)?;
+            Ok(ts)
+        } else if let Ok(n) = s.parse::<i64>() {
+            Kron::timestamp(n)
+        } else {
+            Err(anyhow!("Invalid timestamp: {s:?}"))
         }
     }
 
